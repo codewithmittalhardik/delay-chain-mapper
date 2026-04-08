@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delay Chain Mapper | Architecture of Time</title>
-    <meta name="description" content="Intelligent delay chain analytics — identify systemic delay propagation, isolate root causes, and optimize project timelines with AI.">
+    <meta name="description"
+        content="Intelligent delay chain analytics — identify systemic delay propagation, isolate root causes, and optimize project timelines with AI.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,43 +60,127 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Marked.js for rendering AI markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Three.js + Vanta.js for 3D Background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
     <style>
-        body { background-color: #0a0c10; }
+        body {
+            background-color: #0a0c10;
+        }
+
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         /* D3 node animations */
-        .node-crit { fill: #ff4d4d !important; animation: pulse-glow 2s ease-in-out infinite; }
+        .node-crit {
+            fill: #ff4d4d !important;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
         @keyframes pulse-glow {
-            0%, 100% { filter: drop-shadow(0 0 3px #ff4d4d); opacity: 1; }
-            50% { filter: drop-shadow(0 0 15px #ff4d4d); opacity: 0.7; }
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 3px #ff4d4d);
+                opacity: 1;
+            }
+
+            50% {
+                filter: drop-shadow(0 0 15px #ff4d4d);
+                opacity: 0.7;
+            }
         }
 
         /* Gantt bar transition */
-        .gantt-bar-fill { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .gantt-bar-fill {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         /* Analysis prose styles */
-        .analysis-content h1, .analysis-content h2, .analysis-content h3 {
-            color: #c5a37d; margin-top: 1rem; margin-bottom: 0.5rem; font-weight: 600;
+        .analysis-content h1,
+        .analysis-content h2,
+        .analysis-content h3 {
+            color: #c5a37d;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
         }
-        .analysis-content h2 { font-size: 1.1rem; }
-        .analysis-content h3 { font-size: 0.95rem; }
-        .analysis-content p { margin-bottom: 0.5rem; line-height: 1.7; }
-        .analysis-content ul, .analysis-content ol { padding-left: 1.5rem; margin-bottom: 0.5rem; }
-        .analysis-content li { margin-bottom: 0.25rem; }
-        .analysis-content strong { color: #c5a37d; }
-        .analysis-content code { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 3px; font-size: 0.85em; }
+
+        .analysis-content h2 {
+            font-size: 1.1rem;
+        }
+
+        .analysis-content h3 {
+            font-size: 0.95rem;
+        }
+
+        .analysis-content p {
+            margin-bottom: 0.5rem;
+            line-height: 1.7;
+        }
+
+        .analysis-content ul,
+        .analysis-content ol {
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-content li {
+            margin-bottom: 0.25rem;
+        }
+
+        .analysis-content strong {
+            color: #c5a37d;
+        }
+
+        .analysis-content code {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
 
         /* Loading spinner */
-        .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #c5a37d; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #c5a37d;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Modal backdrop blur */
-        .modal-backdrop { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .modal-backdrop {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
     </style>
 </head>
 
@@ -103,30 +189,42 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- NAVIGATION -->
     <!-- ═══════════════════════════════════════════ -->
-    <nav id="navbar" class="sticky top-0 z-50 flex items-center justify-between px-[5%] py-4 bg-deep/95 backdrop-blur-xl border-b border-border-s">
+    <nav id="navbar"
+        class="sticky top-0 z-50 flex items-center justify-between px-[5%] py-4 bg-deep/95 backdrop-blur-xl border-b border-border-s">
         <div class="text-xl font-semibold tracking-tight">
             <span class="text-gray-100">Δ DelayChain</span><span class="text-gold font-bold">Mapper</span>
         </div>
 
         <div class="hidden md:flex items-center gap-8">
-            <a href="#dashboard-section" class="text-muted text-sm hover:text-gold transition-colors duration-300">Dashboard</a>
-            <a href="#gantt-section" class="text-muted text-sm hover:text-gold transition-colors duration-300">Timeline</a>
-            <a href="#analysis-section" class="text-muted text-sm hover:text-gold transition-colors duration-300">AI Analysis</a>
-            <a href="#reports-section" class="text-muted text-sm hover:text-gold transition-colors duration-300">Reports</a>
+            <a href="#dashboard-section"
+                class="text-muted text-sm hover:text-gold transition-colors duration-300">Dashboard</a>
+            <a href="#gantt-section"
+                class="text-muted text-sm hover:text-gold transition-colors duration-300">Timeline</a>
+            <a href="#analysis-section" class="text-muted text-sm hover:text-gold transition-colors duration-300">AI
+                Analysis</a>
+            <a href="#reports-section"
+                class="text-muted text-sm hover:text-gold transition-colors duration-300">Reports</a>
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="/login/" id="login-trigger" class="text-sm text-gray-300 hover:text-gold transition-colors cursor-pointer bg-transparent border-none no-underline">Login</a>
+            <a href="/login/" id="login-trigger"
+                class="text-sm text-gray-300 hover:text-gold transition-colors cursor-pointer bg-transparent border-none no-underline">Login</a>
             <div id="user-dropdown-container" class="hidden relative group">
-                <button id="user-menu-trigger" class="text-sm text-gray-300 hover:text-gold transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
+                <button id="user-menu-trigger"
+                    class="text-sm text-gray-300 hover:text-gold transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1">
                     <span id="user-name-display"></span>
-                    <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </button>
-                <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-32 bg-deep/95 backdrop-blur-xl border border-border-s rounded shadow-lg overflow-hidden z-50">
-                    <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-critical hover:bg-critical/10 transition-colors cursor-pointer border-none bg-transparent">Logout</button>
+                <div id="user-dropdown-menu"
+                    class="hidden absolute right-0 mt-2 w-32 bg-deep/95 backdrop-blur-xl border border-border-s rounded shadow-lg overflow-hidden z-50">
+                    <button id="logout-btn"
+                        class="w-full text-left px-4 py-2 text-sm text-critical hover:bg-critical/10 transition-colors cursor-pointer border-none bg-transparent">Logout</button>
                 </div>
             </div>
-            <button onclick="document.getElementById('dashboard-section').scrollIntoView({behavior:'smooth'})" class="bg-gold text-black font-semibold text-sm px-5 py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300">
+            <button onclick="document.getElementById('dashboard-section').scrollIntoView({behavior:'smooth'})"
+                class="bg-gold text-black font-semibold text-sm px-5 py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300">
                 Get Started
             </button>
         </div>
@@ -135,8 +233,8 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- HERO SECTION -->
     <!-- ═══════════════════════════════════════════ -->
-    <header class="relative min-h-[55vh] flex items-end justify-between px-[5%] py-16 md:py-24"
-            style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072'); background-size: cover; background-position: center;">
+    <header id="vanta-bg-header"
+        class="relative min-h-[55vh] flex items-end justify-between px-[5%] py-16 md:py-24 overflow-hidden">
         <!-- Gradient overlay -->
         <div class="absolute inset-0 bg-gradient-to-r from-deep/95 via-deep/70 to-deep/40 z-[1]"></div>
 
@@ -146,15 +244,16 @@
                 Navigate the <br><span class="text-gold italic">Architecture of Time</span>
             </h1>
             <p class="text-muted text-sm md:text-base mb-8 max-w-lg leading-relaxed">
-                Identify systemic delay propagation. Isolate root causes using dynamic traversal algorithms. Optimize with AI-powered analysis.
+                Identify systemic delay propagation. Isolate root causes using dynamic traversal algorithms. Optimize
+                with AI-powered analysis.
             </p>
             <div class="flex gap-3 flex-wrap">
                 <button onclick="document.getElementById('dashboard-section').scrollIntoView({behavior:'smooth'})"
-                        class="bg-gold text-black font-semibold text-sm px-6 py-3 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300">
+                    class="bg-gold text-black font-semibold text-sm px-6 py-3 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300">
                     Launch Workspace
                 </button>
                 <button id="export-btn-top"
-                        class="text-white text-sm px-6 py-3 rounded cursor-pointer border border-border-s hover:border-gold/50 hover:text-gold transition-all duration-300 bg-transparent">
+                    class="text-white text-sm px-6 py-3 rounded cursor-pointer border border-border-s hover:border-gold/50 hover:text-gold transition-all duration-300 bg-transparent">
                     Generate PDF Report
                 </button>
             </div>
@@ -175,41 +274,50 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- DASHBOARD MAIN -->
     <!-- ═══════════════════════════════════════════ -->
-    <main id="dashboard-section" class="mx-[5%] mb-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] bg-glass border border-border-s rounded-xl overflow-hidden">
+    <main id="dashboard-section"
+        class="mx-[5%] mb-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] bg-glass border border-border-s rounded-xl overflow-hidden">
 
         <!-- SIDEBAR CONTROLS -->
         <aside class="p-8 border-b lg:border-b-0 lg:border-r border-border-s bg-white/[0.01]">
 
             <!-- Admin Panel (hidden by default) -->
             <div id="admin-panel" class="hidden mb-6">
-                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Admin Panel: System Health</label>
-                <div id="admin-health-stats" class="bg-gold/10 p-3 rounded-lg border border-gold text-xs text-gold/90 space-y-1">
+                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Admin Panel:
+                    System Health</label>
+                <div id="admin-health-stats"
+                    class="bg-gold/10 p-3 rounded-lg border border-gold text-xs text-gold/90 space-y-1">
                     <div class="flex justify-between"><span>Users</span><span id="ah-users">—</span></div>
                     <div class="flex justify-between"><span>Projects</span><span id="ah-projects">—</span></div>
                     <div class="flex justify-between"><span>Total Tasks</span><span id="ah-tasks">—</span></div>
-                    <div class="flex justify-between"><span>Delayed Tasks</span><span id="ah-delayed" class="text-critical">—</span></div>
-                    <div class="flex justify-between"><span>Total Delay</span><span id="ah-total-delay" class="text-critical">—</span></div>
+                    <div class="flex justify-between"><span>Delayed Tasks</span><span id="ah-delayed"
+                            class="text-critical">—</span></div>
+                    <div class="flex justify-between"><span>Total Delay</span><span id="ah-total-delay"
+                            class="text-critical">—</span></div>
                 </div>
-                <button id="view-analytics-btn" class="w-full mt-2 text-gold text-xs py-2 rounded cursor-pointer border border-gold bg-transparent hover:bg-gold/10 transition-all duration-300 font-semibold">
+                <button id="view-analytics-btn"
+                    class="w-full mt-2 text-gold text-xs py-2 rounded cursor-pointer border border-gold bg-transparent hover:bg-gold/10 transition-all duration-300 font-semibold">
                     📊 View Full Analytics
                 </button>
             </div>
 
             <!-- AI Task Parsing -->
             <div class="mb-6">
-                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">AI Task Parsing (Groq API)</label>
+                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">AI Task
+                    Parsing</label>
                 <textarea id="ai-prompt" rows="3" placeholder="Describe your project flow..."
                     class="w-full bg-black/40 border border-[#30363d] rounded-lg p-3 text-white text-sm font-inter resize-none focus:border-gold/50 focus:outline-none transition-colors placeholder:text-muted/50"></textarea>
                 <button id="generate-btn"
                     class="w-full mt-2 bg-gold text-black font-semibold text-xs py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300">
                     <span id="generate-btn-text">Generate Graph</span>
-                    <span id="generate-btn-loader" class="hidden"><span class="spinner inline-block !w-4 !h-4 !border-2 !border-black/20 !border-t-black align-middle"></span></span>
+                    <span id="generate-btn-loader" class="hidden"><span
+                            class="spinner inline-block !w-4 !h-4 !border-2 !border-black/20 !border-t-black align-middle"></span></span>
                 </button>
             </div>
 
             <!-- Manual Task Entry -->
             <div class="mb-6">
-                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Manual Task Entry (FR2)</label>
+                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Manual Task
+                    Entry</label>
                 <input type="text" id="manual-task-name" placeholder="Task Name"
                     class="w-full bg-black/40 border border-[#30363d] rounded-lg p-3 text-white text-sm mb-2 focus:border-gold/50 focus:outline-none transition-colors placeholder:text-muted/50">
                 <input type="number" id="manual-task-duration" placeholder="Duration (Days)"
@@ -223,7 +331,8 @@
 
             <!-- Delay Simulation -->
             <div class="mb-6">
-                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Delay Simulation</label>
+                <label class="block text-[0.65rem] text-gold tracking-[1.5px] uppercase mb-2 font-medium">Delay
+                    Simulation</label>
                 <select id="delay-target-select"
                     class="w-full bg-black/40 border border-[#30363d] rounded-lg p-3 text-white text-sm mb-2 focus:border-gold/50 focus:outline-none transition-colors">
                 </select>
@@ -239,7 +348,8 @@
         <!-- GRAPH VIEWPORT -->
         <section class="relative" style="background: radial-gradient(circle at center, #11151c 0%, #0a0c10 100%);">
             <div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.03]">
-                <div class="px-4 py-1.5 rounded-full text-xs border border-gold text-gold font-medium">Live Dependency Traversal</div>
+                <div class="px-4 py-1.5 rounded-full text-xs border border-gold text-gold font-medium">Live Dependency
+                    Traversal</div>
                 <div class="text-xs text-muted">FR7 Root Cause Algorithm Active</div>
             </div>
             <div id="graph-canvas" class="w-full" style="height: 600px; cursor: grab;"></div>
@@ -250,7 +360,8 @@
     <!-- GANTT TIMELINE -->
     <!-- ═══════════════════════════════════════════ -->
     <section id="gantt-section" class="mx-[5%] mb-8 bg-glass border border-border-s rounded-xl p-8 animate-fade-in">
-        <label class="text-gold text-[0.65rem] tracking-[4px] block mb-5 font-medium uppercase">GANTT TIMELINE VISUALIZATION</label>
+        <label class="text-gold text-[0.65rem] tracking-[4px] block mb-5 font-medium uppercase">GANTT TIMELINE
+            VISUALIZATION</label>
         <div id="gantt-container" class="space-y-3"></div>
     </section>
 
@@ -265,9 +376,13 @@
             </div>
             <button id="analyze-btn"
                 class="bg-gradient-to-r from-gold to-amber-600 text-black font-semibold text-xs px-6 py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
                 <span id="analyze-btn-text">Run AI Analysis</span>
-                <span id="analyze-btn-loader" class="hidden"><span class="spinner inline-block !w-4 !h-4 !border-2 !border-black/20 !border-t-black"></span></span>
+                <span id="analyze-btn-loader" class="hidden"><span
+                        class="spinner inline-block !w-4 !h-4 !border-2 !border-black/20 !border-t-black"></span></span>
             </button>
         </div>
 
@@ -294,11 +409,21 @@
             <table id="report-table" class="w-full border-collapse text-sm">
                 <thead>
                     <tr>
-                        <th class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Timestamp</th>
-                        <th class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Task Identity</th>
-                        <th class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Base Duration</th>
-                        <th class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Current Delay</th>
-                        <th class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Status</th>
+                        <th
+                            class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Timestamp</th>
+                        <th
+                            class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Task Identity</th>
+                        <th
+                            class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Base Duration</th>
+                        <th
+                            class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Current Delay</th>
+                        <th
+                            class="text-left text-[0.65rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Status</th>
                     </tr>
                 </thead>
                 <tbody id="report-log-body"></tbody>
@@ -310,14 +435,19 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- ADMIN ANALYTICS SECTION (hidden by default) -->
     <!-- ═══════════════════════════════════════════ -->
-    <section id="analytics-section" class="hidden mx-[5%] mb-8 bg-glass border border-border-s rounded-xl p-8 animate-fade-in">
+    <section id="analytics-section"
+        class="hidden mx-[5%] mb-8 bg-glass border border-border-s rounded-xl p-8 animate-fade-in">
         <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
             <div>
                 <h3 class="text-gold font-normal text-lg mb-1">Admin: User Analytics Dashboard</h3>
                 <p class="text-muted text-xs">System-wide metrics and per-user activity breakdown</p>
             </div>
-            <button id="refresh-analytics-btn" class="bg-gradient-to-r from-gold to-amber-600 text-black font-semibold text-xs px-5 py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <button id="refresh-analytics-btn"
+                class="bg-gradient-to-r from-gold to-amber-600 text-black font-semibold text-xs px-5 py-2.5 rounded cursor-pointer hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gold/30 transition-all duration-300 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
                 Refresh
             </button>
         </div>
@@ -344,7 +474,8 @@
 
         <!-- Delay Health Bar -->
         <div class="mb-8">
-            <label class="text-gold text-[0.65rem] tracking-[2px] block mb-3 font-medium uppercase">System Health: Delay vs On-Track</label>
+            <label class="text-gold text-[0.65rem] tracking-[2px] block mb-3 font-medium uppercase">System Health: Delay
+                vs On-Track</label>
             <div class="flex h-5 rounded-full overflow-hidden bg-black/30 border border-border-s">
                 <div id="an-ontrack-bar" class="bg-ok/80 transition-all duration-700" style="width:0%"></div>
                 <div id="an-delayed-bar" class="bg-critical/80 transition-all duration-700" style="width:0%"></div>
@@ -356,19 +487,36 @@
         </div>
 
         <!-- Per-User Table -->
-        <label class="text-gold text-[0.65rem] tracking-[2px] block mb-3 font-medium uppercase">Per-User Breakdown</label>
+        <label class="text-gold text-[0.65rem] tracking-[2px] block mb-3 font-medium uppercase">Per-User
+            Breakdown</label>
         <div class="overflow-x-auto rounded-lg bg-black/20 border border-border-s">
             <table class="w-full border-collapse text-sm">
                 <thead>
                     <tr>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">User</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Role</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Projects</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Tasks</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Delay</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Joined</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Last Login</th>
-                        <th class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">Status</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            User</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Role</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Projects</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Tasks</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Delay</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Joined</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Last Login</th>
+                        <th
+                            class="text-left text-[0.6rem] text-muted uppercase tracking-[1.5px] px-4 py-3 border-b border-border-s bg-white/[0.02] font-medium">
+                            Status</th>
                     </tr>
                 </thead>
                 <tbody id="analytics-users-body"></tbody>
@@ -388,277 +536,277 @@
     <!-- INLINE JAVASCRIPT — All Logic -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <script>
-    (function() {
-        'use strict';
+            (function () {
+                'use strict';
 
-        // ──────────────────────────────────────
-        // 1. GLOBAL STATE
-        // ──────────────────────────────────────
-        let projectData = { nodes: [], links: [] };
-        let isAdmin = false;
+                // ──────────────────────────────────────
+                // 1. GLOBAL STATE
+                // ──────────────────────────────────────
+                let projectData = { nodes: [], links: [] };
+                let isAdmin = false;
 
-        // ──────────────────────────────────────
-        // 2. API HELPERS
-        // ──────────────────────────────────────
-        function getCookie(name) {
-            let val = null;
-            if (document.cookie) {
-                document.cookie.split(';').forEach(c => {
-                    c = c.trim();
-                    if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
-                });
-            }
-            return val;
-        }
+                // ──────────────────────────────────────
+                // 2. API HELPERS
+                // ──────────────────────────────────────
+                function getCookie(name) {
+                    let val = null;
+                    if (document.cookie) {
+                        document.cookie.split(';').forEach(c => {
+                            c = c.trim();
+                            if (c.startsWith(name + '=')) val = decodeURIComponent(c.substring(name.length + 1));
+                        });
+                    }
+                    return val;
+                }
 
-        async function api(url, method = 'GET', body = null) {
-            const opts = {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') || '',
-                },
-            };
-            if (body) opts.body = JSON.stringify(body);
-            const res = await fetch(url, opts);
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({ error: res.statusText }));
-                throw new Error(err.error || 'API Error');
-            }
-            // Check if PDF response
-            if (res.headers.get('content-type')?.includes('application/pdf')) {
-                const blob = await res.blob();
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'DelayChain-Report.pdf';
-                link.click();
-                return null;
-            }
-            return res.json();
-        }
+                async function api(url, method = 'GET', body = null) {
+                    const opts = {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') || '',
+                        },
+                    };
+                    if (body) opts.body = JSON.stringify(body);
+                    const res = await fetch(url, opts);
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({ error: res.statusText }));
+                        throw new Error(err.error || 'API Error');
+                    }
+                    // Check if PDF response
+                    if (res.headers.get('content-type')?.includes('application/pdf')) {
+                        const blob = await res.blob();
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'DelayChain-Report.pdf';
+                        link.click();
+                        return null;
+                    }
+                    return res.json();
+                }
 
-        // ──────────────────────────────────────
-        // 3. LOAD PROJECT DATA FROM BACKEND
-        // ──────────────────────────────────────
-        async function loadProject() {
-            try {
-                const data = await api('/api/project/');
-                projectData.nodes = data.nodes || [];
-                projectData.links = data.links || [];
-                refreshAllViews();
-            } catch (e) {
-                console.error('Failed to load project:', e);
-                // Fallback seed data
-                projectData = {
-                    nodes: [
-                        { id: "1", name: "Database Design", delay: 5, duration: 10, timestamp: "09:00 AM" },
-                        { id: "2", name: "Backend API", delay: 0, duration: 15, timestamp: "09:05 AM" },
-                        { id: "3", name: "Frontend Auth", delay: 0, duration: 12, timestamp: "09:10 AM" }
-                    ],
-                    links: [
-                        { source: "1", target: "2" },
-                        { source: "2", target: "3" }
-                    ]
-                };
-                refreshAllViews();
-            }
-        }
+                // ──────────────────────────────────────
+                // 3. LOAD PROJECT DATA FROM BACKEND
+                // ──────────────────────────────────────
+                async function loadProject() {
+                    try {
+                        const data = await api('/api/project/');
+                        projectData.nodes = data.nodes || [];
+                        projectData.links = data.links || [];
+                        refreshAllViews();
+                    } catch (e) {
+                        console.error('Failed to load project:', e);
+                        // Fallback seed data
+                        projectData = {
+                            nodes: [
+                                { id: "1", name: "Database Design", delay: 5, duration: 10, timestamp: "09:00 AM" },
+                                { id: "2", name: "Backend API", delay: 0, duration: 15, timestamp: "09:05 AM" },
+                                { id: "3", name: "Frontend Auth", delay: 0, duration: 12, timestamp: "09:10 AM" }
+                            ],
+                            links: [
+                                { source: "1", target: "2" },
+                                { source: "2", target: "3" }
+                            ]
+                        };
+                        refreshAllViews();
+                    }
+                }
 
-        // ──────────────────────────────────────
-        // 4. SAVE PROJECT STATE TO BACKEND
-        // ──────────────────────────────────────
-        async function saveToBackend() {
-            try {
-                const payload = {
-                    nodes: projectData.nodes.map(n => ({
-                        id: typeof n.id === 'object' ? n.id : String(n.id),
-                        name: n.name,
-                        duration: n.duration,
-                        delay: n.delay,
-                        timestamp: n.timestamp || ''
-                    })),
-                    links: projectData.links.map(l => ({
-                        source: typeof l.source === 'object' ? l.source.id : String(l.source),
-                        target: typeof l.target === 'object' ? l.target.id : String(l.target),
-                    }))
-                };
-                await api('/api/project/save/', 'POST', payload);
-            } catch (e) {
-                console.warn('Backend save failed (offline mode):', e.message);
-            }
-        }
+                // ──────────────────────────────────────
+                // 4. SAVE PROJECT STATE TO BACKEND
+                // ──────────────────────────────────────
+                async function saveToBackend() {
+                    try {
+                        const payload = {
+                            nodes: projectData.nodes.map(n => ({
+                                id: typeof n.id === 'object' ? n.id : String(n.id),
+                                name: n.name,
+                                duration: n.duration,
+                                delay: n.delay,
+                                timestamp: n.timestamp || ''
+                            })),
+                            links: projectData.links.map(l => ({
+                                source: typeof l.source === 'object' ? l.source.id : String(l.source),
+                                target: typeof l.target === 'object' ? l.target.id : String(l.target),
+                            }))
+                        };
+                        await api('/api/project/save/', 'POST', payload);
+                    } catch (e) {
+                        console.warn('Backend save failed (offline mode):', e.message);
+                    }
+                }
 
-        // ──────────────────────────────────────
-        // 5. ROOT CAUSE ALGORITHM (FR7)
-        // ──────────────────────────────────────
-        function findActualRootCauses() {
-            const delayed = projectData.nodes.filter(n => n.delay > 0);
-            return delayed.filter(node => {
-                const incoming = projectData.links.filter(l => {
-                    const tid = typeof l.target === 'object' ? l.target.id : l.target;
-                    return tid === node.id;
-                });
-                return !incoming.some(link => {
-                    const sid = typeof link.source === 'object' ? link.source.id : link.source;
-                    const src = projectData.nodes.find(n => n.id === sid);
-                    return src && src.delay > 0;
-                });
-            });
-        }
+                // ──────────────────────────────────────
+                // 5. ROOT CAUSE ALGORITHM (FR7)
+                // ──────────────────────────────────────
+                function findActualRootCauses() {
+                    const delayed = projectData.nodes.filter(n => n.delay > 0);
+                    return delayed.filter(node => {
+                        const incoming = projectData.links.filter(l => {
+                            const tid = typeof l.target === 'object' ? l.target.id : l.target;
+                            return tid === node.id;
+                        });
+                        return !incoming.some(link => {
+                            const sid = typeof link.source === 'object' ? link.source.id : link.source;
+                            const src = projectData.nodes.find(n => n.id === sid);
+                            return src && src.delay > 0;
+                        });
+                    });
+                }
 
-        // ──────────────────────────────────────
-        // 6. MASTER REFRESH
-        // ──────────────────────────────────────
-        function refreshAllViews() {
-            const roots = findActualRootCauses();
-            const counter = document.getElementById('root-cause-count');
-            if (counter) counter.innerText = roots.length.toString().padStart(2, '0');
+                // ──────────────────────────────────────
+                // 6. MASTER REFRESH
+                // ──────────────────────────────────────
+                function refreshAllViews() {
+                    const roots = findActualRootCauses();
+                    const counter = document.getElementById('root-cause-count');
+                    if (counter) counter.innerText = roots.length.toString().padStart(2, '0');
 
-            renderDependencyGraph(projectData, roots);
-            renderGantt();
-            updateManualTaskList();
-            updateReportTable();
-        }
+                    renderDependencyGraph(projectData, roots);
+                    renderGantt();
+                    updateManualTaskList();
+                    updateReportTable();
+                }
 
-        // ──────────────────────────────────────
-        // 7. D3 GRAPH RENDERER
-        // ──────────────────────────────────────
-        function renderDependencyGraph(data, rootCauses) {
-            d3.select("#graph-canvas").selectAll("*").remove();
-            const container = document.getElementById('graph-canvas');
-            const width = container.clientWidth;
-            const height = 600;
+                // ──────────────────────────────────────
+                // 7. D3 GRAPH RENDERER
+                // ──────────────────────────────────────
+                function renderDependencyGraph(data, rootCauses) {
+                    d3.select("#graph-canvas").selectAll("*").remove();
+                    const container = document.getElementById('graph-canvas');
+                    const width = container.clientWidth;
+                    const height = 600;
 
-            const svg = d3.select("#graph-canvas").append("svg")
-                .attr("width", "100%").attr("height", height)
-                .call(d3.zoom().on("zoom", (e) => mainGroup.attr("transform", e.transform)));
+                    const svg = d3.select("#graph-canvas").append("svg")
+                        .attr("width", "100%").attr("height", height)
+                        .call(d3.zoom().on("zoom", (e) => mainGroup.attr("transform", e.transform)));
 
-            const mainGroup = svg.append("g");
+                    const mainGroup = svg.append("g");
 
-            // Arrowhead marker
-            svg.append("defs").append("marker")
-                .attr("id", "arrowhead").attr("viewBox", "0 -5 10 10")
-                .attr("refX", 22).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6)
-                .attr("orient", "auto")
-                .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "rgba(255,255,255,0.15)");
+                    // Arrowhead marker
+                    svg.append("defs").append("marker")
+                        .attr("id", "arrowhead").attr("viewBox", "0 -5 10 10")
+                        .attr("refX", 22).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6)
+                        .attr("orient", "auto")
+                        .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "rgba(255,255,255,0.15)");
 
-            const simulation = d3.forceSimulation(data.nodes)
-                .force("link", d3.forceLink(data.links).id(d => d.id).distance(160))
-                .force("charge", d3.forceManyBody().strength(-500))
-                .force("center", d3.forceCenter(width / 2, height / 2));
+                    const simulation = d3.forceSimulation(data.nodes)
+                        .force("link", d3.forceLink(data.links).id(d => d.id).distance(160))
+                        .force("charge", d3.forceManyBody().strength(-500))
+                        .force("center", d3.forceCenter(width / 2, height / 2));
 
-            const link = mainGroup.append("g").selectAll("line")
-                .data(data.links).join("line")
-                .attr("stroke", "rgba(255,255,255,0.1)").attr("stroke-width", 2)
-                .attr("marker-end", "url(#arrowhead)");
+                    const link = mainGroup.append("g").selectAll("line")
+                        .data(data.links).join("line")
+                        .attr("stroke", "rgba(255,255,255,0.1)").attr("stroke-width", 2)
+                        .attr("marker-end", "url(#arrowhead)");
 
-            const node = mainGroup.append("g").selectAll("g")
-                .data(data.nodes).join("g")
-                .call(d3.drag()
-                    .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
-                    .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
-                    .on("end", (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }));
+                    const node = mainGroup.append("g").selectAll("g")
+                        .data(data.nodes).join("g")
+                        .call(d3.drag()
+                            .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+                            .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+                            .on("end", (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }));
 
-            // Glow ring for root causes
-            node.filter(d => rootCauses.some(r => r.id === d.id))
-                .append("circle").attr("r", 20)
-                .attr("fill", "none").attr("stroke", "#ff4d4d").attr("stroke-width", 1)
-                .attr("opacity", 0.3).attr("class", "node-crit");
+                    // Glow ring for root causes
+                    node.filter(d => rootCauses.some(r => r.id === d.id))
+                        .append("circle").attr("r", 20)
+                        .attr("fill", "none").attr("stroke", "#ff4d4d").attr("stroke-width", 1)
+                        .attr("opacity", 0.3).attr("class", "node-crit");
 
-            node.append("circle")
-                .attr("r", d => rootCauses.some(r => r.id === d.id) ? 13 : 9)
-                .attr("fill", d => d.delay > 0 ? "#ff4d4d" : "#c5a37d")
-                .attr("class", d => rootCauses.some(r => r.id === d.id) ? "node-crit" : "")
-                .style("cursor", "pointer").style("transition", "fill 0.3s ease");
+                    node.append("circle")
+                        .attr("r", d => rootCauses.some(r => r.id === d.id) ? 13 : 9)
+                        .attr("fill", d => d.delay > 0 ? "#ff4d4d" : "#c5a37d")
+                        .attr("class", d => rootCauses.some(r => r.id === d.id) ? "node-crit" : "")
+                        .style("cursor", "pointer").style("transition", "fill 0.3s ease");
 
-            node.append("text").text(d => d.name)
-                .attr("font-size", "11px").attr("fill", "#8b949e")
-                .attr("dx", 18).attr("dy", 4)
-                .style("pointer-events", "none").style("font-weight", "300");
+                    node.append("text").text(d => d.name)
+                        .attr("font-size", "11px").attr("fill", "#8b949e")
+                        .attr("dx", 18).attr("dy", 4)
+                        .style("pointer-events", "none").style("font-weight", "300");
 
-            simulation.on("tick", () => {
-                link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
-                node.attr("transform", d => `translate(${d.x},${d.y})`);
-            });
+                    simulation.on("tick", () => {
+                        link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+                        node.attr("transform", d => `translate(${d.x},${d.y})`);
+                    });
 
-            node.on("mouseenter", function() {
-                d3.select(this).select("circle:last-of-type").attr("stroke", "#fff").attr("stroke-width", 2);
-            }).on("mouseleave", function() {
-                d3.select(this).select("circle:last-of-type").attr("stroke", "none");
-            });
-        }
+                    node.on("mouseenter", function () {
+                        d3.select(this).select("circle:last-of-type").attr("stroke", "#fff").attr("stroke-width", 2);
+                    }).on("mouseleave", function () {
+                        d3.select(this).select("circle:last-of-type").attr("stroke", "none");
+                    });
+                }
 
-        // ──────────────────────────────────────
-        // 8. GANTT CHART RENDERER
-        // ──────────────────────────────────────
-        function renderGantt() {
-            const container = document.getElementById('gantt-container');
-            if (!container) return;
-            container.innerHTML = '';
+                // ──────────────────────────────────────
+                // 8. GANTT CHART RENDERER
+                // ──────────────────────────────────────
+                function renderGantt() {
+                    const container = document.getElementById('gantt-container');
+                    if (!container) return;
+                    container.innerHTML = '';
 
-            const maxDur = Math.max(...projectData.nodes.map(n => n.duration + n.delay), 1);
+                    const maxDur = Math.max(...projectData.nodes.map(n => n.duration + n.delay), 1);
 
-            projectData.nodes.forEach(node => {
-                const total = node.duration + node.delay;
-                const pct = Math.min((total / maxDur) * 100, 100);
-                const color = node.delay > 0 ? '#ff4d4d' : '#c5a37d';
+                    projectData.nodes.forEach(node => {
+                        const total = node.duration + node.delay;
+                        const pct = Math.min((total / maxDur) * 100, 100);
+                        const color = node.delay > 0 ? '#ff4d4d' : '#c5a37d';
 
-                const row = document.createElement('div');
-                row.className = 'flex items-center gap-4';
-                row.innerHTML = `
+                        const row = document.createElement('div');
+                        row.className = 'flex items-center gap-4';
+                        row.innerHTML = `
                     <div class="w-[160px] min-w-[160px] text-xs text-muted truncate">${node.name}</div>
                     <div class="flex-1 h-3 bg-white/[0.03] rounded-full relative overflow-hidden">
                         <div class="gantt-bar-fill h-full rounded-full absolute left-0" style="width:${pct}%; background:${color}"></div>
                     </div>
                     <div class="text-xs text-muted w-16 text-right">${total}d</div>
                 `;
-                container.appendChild(row);
-            });
-        }
+                        container.appendChild(row);
+                    });
+                }
 
-        // ──────────────────────────────────────
-        // 9. MANUAL TASK LIST & DROPDOWN
-        // ──────────────────────────────────────
-        function updateManualTaskList() {
-            const list = document.getElementById('manual-task-list');
-            const select = document.getElementById('delay-target-select');
-            if (!list || !select) return;
+                // ──────────────────────────────────────
+                // 9. MANUAL TASK LIST & DROPDOWN
+                // ──────────────────────────────────────
+                function updateManualTaskList() {
+                    const list = document.getElementById('manual-task-list');
+                    const select = document.getElementById('delay-target-select');
+                    if (!list || !select) return;
 
-            list.innerHTML = '';
-            select.innerHTML = '<option value="">Select Task to Delay</option>';
+                    list.innerHTML = '';
+                    select.innerHTML = '<option value="">Select Task to Delay</option>';
 
-            projectData.nodes.forEach(n => {
-                const nodeId = typeof n.id === 'object' ? n.id : n.id;
+                    projectData.nodes.forEach(n => {
+                        const nodeId = typeof n.id === 'object' ? n.id : n.id;
 
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between bg-white/[0.02] px-3 py-2 rounded-md border border-border-s text-xs hover:bg-white/[0.05] transition-colors';
-                item.innerHTML = `
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center justify-between bg-white/[0.02] px-3 py-2 rounded-md border border-border-s text-xs hover:bg-white/[0.05] transition-colors';
+                        item.innerHTML = `
                     <span class="text-gray-300 truncate">${n.name}</span>
                     <button onclick="window._deleteTask('${nodeId}')" class="text-critical hover:text-red-400 bg-transparent border-none cursor-pointer text-base font-bold ml-2">×</button>
                 `;
-                list.appendChild(item);
+                        list.appendChild(item);
 
-                const opt = document.createElement('option');
-                opt.value = nodeId;
-                opt.textContent = n.name;
-                select.appendChild(opt);
-            });
-        }
+                        const opt = document.createElement('option');
+                        opt.value = nodeId;
+                        opt.textContent = n.name;
+                        select.appendChild(opt);
+                    });
+                }
 
-        // ──────────────────────────────────────
-        // 10. REPORT TABLE
-        // ──────────────────────────────────────
-        function updateReportTable() {
-            const tbody = document.getElementById('report-log-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+                // ──────────────────────────────────────
+                // 10. REPORT TABLE
+                // ──────────────────────────────────────
+                function updateReportTable() {
+                    const tbody = document.getElementById('report-log-body');
+                    if (!tbody) return;
+                    tbody.innerHTML = '';
 
-            projectData.nodes.forEach(node => {
-                const delayed = node.delay > 0;
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gold/[0.06] transition-colors';
-                tr.innerHTML = `
+                    projectData.nodes.forEach(node => {
+                        const delayed = node.delay > 0;
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gold/[0.06] transition-colors';
+                        tr.innerHTML = `
                     <td class="px-4 py-3 text-muted font-mono text-xs border-b border-white/[0.03]">${node.timestamp || '—'}</td>
                     <td class="px-4 py-3 font-medium border-b border-white/[0.03]">${node.name}</td>
                     <td class="px-4 py-3 border-b border-white/[0.03]">${node.duration} Days</td>
@@ -670,293 +818,293 @@
                         </span>
                     </td>
                 `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // ──────────────────────────────────────
-        // 11. ACTIONS: DELETE TASK
-        // ──────────────────────────────────────
-        window._deleteTask = async function(id) {
-            projectData.nodes = projectData.nodes.filter(n => {
-                const nid = typeof n.id === 'object' ? n.id : n.id;
-                return nid !== id;
-            });
-            projectData.links = projectData.links.filter(l => {
-                const sid = typeof l.source === 'object' ? l.source.id : l.source;
-                const tid = typeof l.target === 'object' ? l.target.id : l.target;
-                return sid !== id && tid !== id;
-            });
-            refreshAllViews();
-            try { await api(`/api/task/${id}/delete/`, 'DELETE'); } catch(e) { console.warn(e); }
-        };
-
-        // ──────────────────────────────────────
-        // 12. ACTIONS: ADD TASK
-        // ──────────────────────────────────────
-        document.getElementById('add-task-btn').addEventListener('click', async () => {
-            const nameEl = document.getElementById('manual-task-name');
-            const durEl = document.getElementById('manual-task-duration');
-            const name = nameEl.value.trim();
-            if (!name) return;
-
-            const taskId = Date.now().toString();
-            const duration = parseInt(durEl.value) || 10;
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            const newNode = { id: taskId, name, duration, delay: 0, timestamp };
-            projectData.nodes.push(newNode);
-            nameEl.value = '';
-            durEl.value = '';
-            refreshAllViews();
-
-            try {
-                await api('/api/task/create/', 'POST', { task_id: taskId, name, duration, timestamp });
-            } catch(e) { console.warn(e); }
-        });
-
-        // ──────────────────────────────────────
-        // 13. ACTIONS: PROPAGATE DELAY
-        // ──────────────────────────────────────
-        document.getElementById('propagate-btn').addEventListener('click', async () => {
-            const targetId = document.getElementById('delay-target-select').value;
-            const days = parseInt(document.getElementById('delay-days').value);
-            if (!targetId || isNaN(days)) return;
-
-            try {
-                const data = await api('/api/delay/propagate/', 'POST', { target_id: targetId, days });
-                if (data) {
-                    projectData.nodes = data.nodes || projectData.nodes;
-                    projectData.links = data.links || projectData.links;
-                    refreshAllViews();
+                        tbody.appendChild(tr);
+                    });
                 }
-            } catch(e) {
-                // Fallback: client-side propagation
-                const target = projectData.nodes.find(n => n.id === targetId);
-                if (target) {
-                    target.delay = days;
-                    projectData.links.forEach(link => {
-                        const sid = typeof link.source === 'object' ? link.source.id : link.source;
-                        const tid = typeof link.target === 'object' ? link.target.id : link.target;
-                        if (sid === targetId) {
-                            const downstream = projectData.nodes.find(n => n.id === tid);
-                            if (downstream) downstream.delay = Math.max(downstream.delay, days - 2);
-                        }
+
+                // ──────────────────────────────────────
+                // 11. ACTIONS: DELETE TASK
+                // ──────────────────────────────────────
+                window._deleteTask = async function (id) {
+                    projectData.nodes = projectData.nodes.filter(n => {
+                        const nid = typeof n.id === 'object' ? n.id : n.id;
+                        return nid !== id;
+                    });
+                    projectData.links = projectData.links.filter(l => {
+                        const sid = typeof l.source === 'object' ? l.source.id : l.source;
+                        const tid = typeof l.target === 'object' ? l.target.id : l.target;
+                        return sid !== id && tid !== id;
                     });
                     refreshAllViews();
-                }
-            }
-        });
+                    try { await api(`/api/task/${id}/delete/`, 'DELETE'); } catch (e) { console.warn(e); }
+                };
 
-        // ──────────────────────────────────────
-        // 14. ACTIONS: AI GENERATE CHAIN
-        // ──────────────────────────────────────
-        document.getElementById('generate-btn').addEventListener('click', async () => {
-            const prompt = document.getElementById('ai-prompt').value.trim();
-            if (!prompt) return;
+                // ──────────────────────────────────────
+                // 12. ACTIONS: ADD TASK
+                // ──────────────────────────────────────
+                document.getElementById('add-task-btn').addEventListener('click', async () => {
+                    const nameEl = document.getElementById('manual-task-name');
+                    const durEl = document.getElementById('manual-task-duration');
+                    const name = nameEl.value.trim();
+                    if (!name) return;
 
-            const btnText = document.getElementById('generate-btn-text');
-            const btnLoader = document.getElementById('generate-btn-loader');
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
+                    const taskId = Date.now().toString();
+                    const duration = parseInt(durEl.value) || 10;
+                    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            try {
-                const data = await api('/api/generate-chain/', 'POST', { prompt });
-                if (data && data.nodes) {
-                    projectData.nodes = data.nodes;
-                    projectData.links = data.links || [];
+                    const newNode = { id: taskId, name, duration, delay: 0, timestamp };
+                    projectData.nodes.push(newNode);
+                    nameEl.value = '';
+                    durEl.value = '';
                     refreshAllViews();
-                } else if (data && data.error) {
-                    alert(data.error);
-                }
-            } catch(e) {
-                alert('AI Service Error: ' + e.message);
-            } finally {
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-            }
-        });
 
-        // ──────────────────────────────────────
-        // 15. ACTIONS: AI DELAY ANALYSIS
-        // ──────────────────────────────────────
-        document.getElementById('analyze-btn').addEventListener('click', async () => {
-            const output = document.getElementById('analysis-output');
-            const btnText = document.getElementById('analyze-btn-text');
-            const btnLoader = document.getElementById('analyze-btn-loader');
+                    try {
+                        await api('/api/task/create/', 'POST', { task_id: taskId, name, duration, timestamp });
+                    } catch (e) { console.warn(e); }
+                });
 
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
+                // ──────────────────────────────────────
+                // 13. ACTIONS: PROPAGATE DELAY
+                // ──────────────────────────────────────
+                document.getElementById('propagate-btn').addEventListener('click', async () => {
+                    const targetId = document.getElementById('delay-target-select').value;
+                    const days = parseInt(document.getElementById('delay-days').value);
+                    if (!targetId || isNaN(days)) return;
 
-            output.innerHTML = `
+                    try {
+                        const data = await api('/api/delay/propagate/', 'POST', { target_id: targetId, days });
+                        if (data) {
+                            projectData.nodes = data.nodes || projectData.nodes;
+                            projectData.links = data.links || projectData.links;
+                            refreshAllViews();
+                        }
+                    } catch (e) {
+                        // Fallback: client-side propagation
+                        const target = projectData.nodes.find(n => n.id === targetId);
+                        if (target) {
+                            target.delay = days;
+                            projectData.links.forEach(link => {
+                                const sid = typeof link.source === 'object' ? link.source.id : link.source;
+                                const tid = typeof link.target === 'object' ? link.target.id : link.target;
+                                if (sid === targetId) {
+                                    const downstream = projectData.nodes.find(n => n.id === tid);
+                                    if (downstream) downstream.delay = Math.max(downstream.delay, days - 2);
+                                }
+                            });
+                            refreshAllViews();
+                        }
+                    }
+                });
+
+                // ──────────────────────────────────────
+                // 14. ACTIONS: AI GENERATE CHAIN
+                // ──────────────────────────────────────
+                document.getElementById('generate-btn').addEventListener('click', async () => {
+                    const prompt = document.getElementById('ai-prompt').value.trim();
+                    if (!prompt) return;
+
+                    const btnText = document.getElementById('generate-btn-text');
+                    const btnLoader = document.getElementById('generate-btn-loader');
+                    btnText.classList.add('hidden');
+                    btnLoader.classList.remove('hidden');
+
+                    try {
+                        const data = await api('/api/generate-chain/', 'POST', { prompt });
+                        if (data && data.nodes) {
+                            projectData.nodes = data.nodes;
+                            projectData.links = data.links || [];
+                            refreshAllViews();
+                        } else if (data && data.error) {
+                            alert(data.error);
+                        }
+                    } catch (e) {
+                        alert('AI Service Error: ' + e.message);
+                    } finally {
+                        btnText.classList.remove('hidden');
+                        btnLoader.classList.add('hidden');
+                    }
+                });
+
+                // ──────────────────────────────────────
+                // 15. ACTIONS: AI DELAY ANALYSIS
+                // ──────────────────────────────────────
+                document.getElementById('analyze-btn').addEventListener('click', async () => {
+                    const output = document.getElementById('analysis-output');
+                    const btnText = document.getElementById('analyze-btn-text');
+                    const btnLoader = document.getElementById('analyze-btn-loader');
+
+                    btnText.classList.add('hidden');
+                    btnLoader.classList.remove('hidden');
+
+                    output.innerHTML = `
                 <div class="flex items-center justify-center gap-3 py-8 text-muted">
                     <div class="spinner"></div>
                     <span class="text-sm">Analyzing delay chain with Groq AI...</span>
                 </div>
             `;
 
-            try {
-                const data = await api('/api/analyze-delay/', 'POST');
-                if (data && data.analysis) {
-                    output.innerHTML = `<div class="analysis-content text-sm text-gray-300 leading-relaxed">${marked.parse(data.analysis)}</div>`;
-                } else {
-                    output.innerHTML = `<div class="text-critical text-sm p-4">Error: ${data?.error || 'Unknown error occurred'}</div>`;
-                }
-            } catch(e) {
-                output.innerHTML = `
+                    try {
+                        const data = await api('/api/analyze-delay/', 'POST');
+                        if (data && data.analysis) {
+                            output.innerHTML = `<div class="analysis-content text-sm text-gray-300 leading-relaxed">${marked.parse(data.analysis)}</div>`;
+                        } else {
+                            output.innerHTML = `<div class="text-critical text-sm p-4">Error: ${data?.error || 'Unknown error occurred'}</div>`;
+                        }
+                    } catch (e) {
+                        output.innerHTML = `
                     <div class="text-center py-8">
                         <div class="text-critical text-sm mb-2">AI Service Unavailable</div>
                         <div class="text-muted text-xs">Ensure your <code class="bg-white/10 px-1.5 py-0.5 rounded text-gold">GROQ_API_KEY</code> is set in the <code class="bg-white/10 px-1.5 py-0.5 rounded text-gold">.env</code> file</div>
                     </div>
                 `;
-            } finally {
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-            }
-        });
-
-        // ──────────────────────────────────────
-        // 16. PDF EXPORT
-        // ──────────────────────────────────────
-        async function exportPDF() {
-            try {
-                await api('/api/export-pdf/', 'POST');
-            } catch(e) {
-                // Fallback: client-side PDF
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.setFontSize(20);
-                doc.setTextColor(197, 163, 125);
-                doc.text("Delay Chain Analysis Report", 20, 20);
-                doc.setFontSize(9);
-                doc.setTextColor(139, 148, 158);
-                doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
-
-                let y = 45;
-                doc.setFontSize(10);
-                doc.setTextColor(240, 246, 252);
-                projectData.nodes.forEach(n => {
-                    const status = n.delay > 0 ? `DELAYED +${n.delay}d` : 'ON TRACK';
-                    doc.text(`${(n.timestamp || '').padEnd(10)} | ${n.name.padEnd(25)} | ${status}`, 20, y);
-                    y += 8;
+                    } finally {
+                        btnText.classList.remove('hidden');
+                        btnLoader.classList.add('hidden');
+                    }
                 });
-                doc.save("DelayChain-Report.pdf");
-            }
-        }
 
-        document.getElementById('export-btn').addEventListener('click', exportPDF);
-        document.getElementById('export-btn-top').addEventListener('click', exportPDF);
+                // ──────────────────────────────────────
+                // 16. PDF EXPORT
+                // ──────────────────────────────────────
+                async function exportPDF() {
+                    try {
+                        await api('/api/export-pdf/', 'POST');
+                    } catch (e) {
+                        // Fallback: client-side PDF
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF();
+                        doc.setFontSize(20);
+                        doc.setTextColor(197, 163, 125);
+                        doc.text("Delay Chain Analysis Report", 20, 20);
+                        doc.setFontSize(9);
+                        doc.setTextColor(139, 148, 158);
+                        doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
 
-        // ──────────────────────────────────────
-        // 17. AUTHENTICATION
-        // ──────────────────────────────────────
-        const loginTrigger = document.getElementById('login-trigger');
-        const userDropdownContainer = document.getElementById('user-dropdown-container');
-        const userMenuTrigger = document.getElementById('user-menu-trigger');
-        const userDropdownMenu = document.getElementById('user-dropdown-menu');
-        const userNameDisplay = document.getElementById('user-name-display');
-        const logoutBtn = document.getElementById('logout-btn');
-        let currentUser = null;
-
-        // Toggle User Dropdown
-        userMenuTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdownMenu.classList.toggle('hidden');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!userDropdownContainer.contains(e.target)) {
-                userDropdownMenu.classList.add('hidden');
-            }
-        });
-
-        function updateAuthUI(data) {
-            currentUser = data.username;
-            loginTrigger.classList.add('hidden');
-            userDropdownContainer.classList.remove('hidden');
-
-            if (data.is_admin) {
-                isAdmin = true;
-                document.getElementById('admin-panel').classList.remove('hidden');
-                document.getElementById('admin-stat-block').classList.remove('hidden');
-                document.getElementById('analytics-section').classList.remove('hidden');
-                userNameDisplay.innerHTML = `${data.username.toUpperCase()} <span class="ml-1.5 bg-amber-900/50 text-gold px-1.5 py-0.5 rounded text-[0.55rem] border border-gold font-bold">ADMIN</span>`;
-                loadAdminAnalytics();
-            } else {
-                userNameDisplay.textContent = data.username.toUpperCase();
-            }
-        }
-
-        async function checkAuthStatus() {
-            try {
-                const data = await api('/api/auth/status/', 'GET');
-                if (data.status === 'authenticated') {
-                    updateAuthUI(data);
+                        let y = 45;
+                        doc.setFontSize(10);
+                        doc.setTextColor(240, 246, 252);
+                        projectData.nodes.forEach(n => {
+                            const status = n.delay > 0 ? `DELAYED +${n.delay}d` : 'ON TRACK';
+                            doc.text(`${(n.timestamp || '').padEnd(10)} | ${n.name.padEnd(25)} | ${status}`, 20, y);
+                            y += 8;
+                        });
+                        doc.save("DelayChain-Report.pdf");
+                    }
                 }
-            } catch(e) {
-                // Not authenticated, do nothing
-            }
-        }
 
-        // LOGOUT
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await api('/api/auth/logout/', 'POST');
-            } catch(e) { /* ignore */ }
-            currentUser = null;
-            isAdmin = false;
-            
-            loginTrigger.classList.remove('hidden');
-            userDropdownContainer.classList.add('hidden');
-            userDropdownMenu.classList.add('hidden');
-            
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('admin-stat-block').classList.add('hidden');
-            document.getElementById('analytics-section').classList.add('hidden');
-        });
+                document.getElementById('export-btn').addEventListener('click', exportPDF);
+                document.getElementById('export-btn-top').addEventListener('click', exportPDF);
 
-        // ──────────────────────────────────────
-        // 18. ADMIN ANALYTICS
-        // ──────────────────────────────────────
-        async function loadAdminAnalytics() {
-            try {
-                const data = await api('/api/admin/analytics/');
-                const sys = data.system;
+                // ──────────────────────────────────────
+                // 17. AUTHENTICATION
+                // ──────────────────────────────────────
+                const loginTrigger = document.getElementById('login-trigger');
+                const userDropdownContainer = document.getElementById('user-dropdown-container');
+                const userMenuTrigger = document.getElementById('user-menu-trigger');
+                const userDropdownMenu = document.getElementById('user-dropdown-menu');
+                const userNameDisplay = document.getElementById('user-name-display');
+                const logoutBtn = document.getElementById('logout-btn');
+                let currentUser = null;
 
-                // Sidebar health stats
-                document.getElementById('ah-users').textContent = sys.total_users;
-                document.getElementById('ah-projects').textContent = sys.total_projects;
-                document.getElementById('ah-tasks').textContent = sys.total_tasks;
-                document.getElementById('ah-delayed').textContent = sys.delayed_tasks;
-                document.getElementById('ah-total-delay').textContent = sys.total_delay_days + 'd';
+                // Toggle User Dropdown
+                userMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdownMenu.classList.toggle('hidden');
+                });
 
-                // Hero stat
-                const adminStatVal = document.querySelector('#admin-stat-block .text-5xl');
-                if (adminStatVal) adminStatVal.textContent = sys.total_tasks;
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!userDropdownContainer.contains(e.target)) {
+                        userDropdownMenu.classList.add('hidden');
+                    }
+                });
 
-                // Analytics cards
-                document.getElementById('an-total-users').textContent = sys.total_users;
-                document.getElementById('an-total-projects').textContent = sys.total_projects;
-                document.getElementById('an-total-tasks').textContent = sys.total_tasks;
-                document.getElementById('an-avg-duration').textContent = sys.avg_task_duration + 'd';
+                function updateAuthUI(data) {
+                    currentUser = data.username;
+                    loginTrigger.classList.add('hidden');
+                    userDropdownContainer.classList.remove('hidden');
 
-                // Health bar
-                const total = sys.on_track_tasks + sys.delayed_tasks;
-                if (total > 0) {
-                    document.getElementById('an-ontrack-bar').style.width = ((sys.on_track_tasks / total) * 100) + '%';
-                    document.getElementById('an-delayed-bar').style.width = ((sys.delayed_tasks / total) * 100) + '%';
+                    if (data.is_admin) {
+                        isAdmin = true;
+                        document.getElementById('admin-panel').classList.remove('hidden');
+                        document.getElementById('admin-stat-block').classList.remove('hidden');
+                        document.getElementById('analytics-section').classList.remove('hidden');
+                        userNameDisplay.innerHTML = `${data.username.toUpperCase()} <span class="ml-1.5 bg-amber-900/50 text-gold px-1.5 py-0.5 rounded text-[0.55rem] border border-gold font-bold">ADMIN</span>`;
+                        loadAdminAnalytics();
+                    } else {
+                        userNameDisplay.textContent = data.username.toUpperCase();
+                    }
                 }
-                document.getElementById('an-ontrack-count').textContent = sys.on_track_tasks;
-                document.getElementById('an-delayed-count').textContent = sys.delayed_tasks;
 
-                // User table
-                const tbody = document.getElementById('analytics-users-body');
-                tbody.innerHTML = '';
-                data.users.forEach(u => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gold/[0.06] transition-colors';
-                    tr.innerHTML = `
+                async function checkAuthStatus() {
+                    try {
+                        const data = await api('/api/auth/status/', 'GET');
+                        if (data.status === 'authenticated') {
+                            updateAuthUI(data);
+                        }
+                    } catch (e) {
+                        // Not authenticated, do nothing
+                    }
+                }
+
+                // LOGOUT
+                logoutBtn.addEventListener('click', async () => {
+                    try {
+                        await api('/api/auth/logout/', 'POST');
+                    } catch (e) { /* ignore */ }
+                    currentUser = null;
+                    isAdmin = false;
+
+                    loginTrigger.classList.remove('hidden');
+                    userDropdownContainer.classList.add('hidden');
+                    userDropdownMenu.classList.add('hidden');
+
+                    document.getElementById('admin-panel').classList.add('hidden');
+                    document.getElementById('admin-stat-block').classList.add('hidden');
+                    document.getElementById('analytics-section').classList.add('hidden');
+                });
+
+                // ──────────────────────────────────────
+                // 18. ADMIN ANALYTICS
+                // ──────────────────────────────────────
+                async function loadAdminAnalytics() {
+                    try {
+                        const data = await api('/api/admin/analytics/');
+                        const sys = data.system;
+
+                        // Sidebar health stats
+                        document.getElementById('ah-users').textContent = sys.total_users;
+                        document.getElementById('ah-projects').textContent = sys.total_projects;
+                        document.getElementById('ah-tasks').textContent = sys.total_tasks;
+                        document.getElementById('ah-delayed').textContent = sys.delayed_tasks;
+                        document.getElementById('ah-total-delay').textContent = sys.total_delay_days + 'd';
+
+                        // Hero stat
+                        const adminStatVal = document.querySelector('#admin-stat-block .text-5xl');
+                        if (adminStatVal) adminStatVal.textContent = sys.total_tasks;
+
+                        // Analytics cards
+                        document.getElementById('an-total-users').textContent = sys.total_users;
+                        document.getElementById('an-total-projects').textContent = sys.total_projects;
+                        document.getElementById('an-total-tasks').textContent = sys.total_tasks;
+                        document.getElementById('an-avg-duration').textContent = sys.avg_task_duration + 'd';
+
+                        // Health bar
+                        const total = sys.on_track_tasks + sys.delayed_tasks;
+                        if (total > 0) {
+                            document.getElementById('an-ontrack-bar').style.width = ((sys.on_track_tasks / total) * 100) + '%';
+                            document.getElementById('an-delayed-bar').style.width = ((sys.delayed_tasks / total) * 100) + '%';
+                        }
+                        document.getElementById('an-ontrack-count').textContent = sys.on_track_tasks;
+                        document.getElementById('an-delayed-count').textContent = sys.delayed_tasks;
+
+                        // User table
+                        const tbody = document.getElementById('analytics-users-body');
+                        tbody.innerHTML = '';
+                        data.users.forEach(u => {
+                            const tr = document.createElement('tr');
+                            tr.className = 'hover:bg-gold/[0.06] transition-colors';
+                            tr.innerHTML = `
                         <td class="px-4 py-3 font-medium border-b border-white/[0.03]">
                             <div class="flex items-center gap-2">
                                 <div class="w-7 h-7 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold text-xs font-bold">${u.username.charAt(0).toUpperCase()}</div>
@@ -984,31 +1132,60 @@
                             </span>
                         </td>
                     `;
-                    tbody.appendChild(tr);
+                            tbody.appendChild(tr);
+                        });
+                    } catch (e) {
+                        console.warn('Analytics load failed:', e);
+                    }
+                }
+
+                document.getElementById('view-analytics-btn')?.addEventListener('click', () => {
+                    const section = document.getElementById('analytics-section');
+                    section.classList.remove('hidden');
+                    section.scrollIntoView({ behavior: 'smooth' });
                 });
-            } catch(e) {
-                console.warn('Analytics load failed:', e);
-            }
-        }
 
-        document.getElementById('view-analytics-btn')?.addEventListener('click', () => {
-            const section = document.getElementById('analytics-section');
-            section.classList.remove('hidden');
-            section.scrollIntoView({ behavior: 'smooth' });
-        });
+                document.getElementById('refresh-analytics-btn')?.addEventListener('click', loadAdminAnalytics);
 
-        document.getElementById('refresh-analytics-btn')?.addEventListener('click', loadAdminAnalytics);
+                // ──────────────────────────────────────
+                // 19. VANTA BACKGROUND & THEME
+                // ──────────────────────────────────────
+                let isDarkTheme = true;
+                let vantaBackground = null;
 
-        // ──────────────────────────────────────
-        // 19. BOOT
-        // ──────────────────────────────────────
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAuthStatus();
-            loadProject();
-        });
+                function initVanta() {
+                    if (vantaBackground) vantaBackground.destroy();
+                    vantaBackground = VANTA.NET({
+                        el: "#vanta-bg-header",
+                        mouseControls: true,
+                        touchControls: true,
+                        gyroControls: false,
+                        minHeight: 200.00,
+                        minWidth: 200.00,
+                        scale: 1.00,
+                        scaleMobile: 1.00,
+                        color: isDarkTheme ? 0xc5a37d : 0x000000,
+                        backgroundColor: isDarkTheme ? 0x0a0c10 : 0xe2e8f0,
+                        points: 10.00,
+                        maxDistance: 22.00,
+                        spacing: 16.00
+                    });
+                }
 
-    })();
+        // Removed Theme Toggle Event Listener
+
+                // ──────────────────────────────────────
+                // 20. BOOT
+                // ──────────────────────────────────────
+                window.addEventListener('DOMContentLoaded', () => {
+                    checkAuthStatus();
+                    loadProject();
+                    if (window.VANTA) initVanta();
+                });
+
+            })();
     </script>
 
 </body>
+
 </html>
