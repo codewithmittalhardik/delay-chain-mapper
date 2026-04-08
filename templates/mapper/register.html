@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Delay Chain Mapper</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deep: '#0a0a0f',
+                        glass: 'rgba(255, 255, 255, 0.02)',
+                        'border-s': 'rgba(255, 255, 255, 0.08)',
+                        gold: '#c5a37d',
+                        muted: '#8b949e',
+                        critical: '#ff4d4d',
+                        ok: '#2ea043'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0f; color: #f0f6fc; }
+        .bg-glass { background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-gold/30">
+
+    <nav class="sticky top-0 z-50 flex items-center justify-between px-[5%] py-4 bg-deep/95 backdrop-blur-xl border-b border-border-s">
+        <a href="/" class="text-xl font-semibold tracking-tight cursor-pointer hover:opacity-80 transition-opacity">
+            <span class="text-gray-100">Δ DelayChain</span><span class="text-gold font-bold">Mapper</span>
+        </a>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center p-6 relative">
+        <!-- Abstract Background Element -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold rounded-full mix-blend-screen filter blur-[150px] opacity-10"></div>
+        </div>
+
+        <div class="w-full max-w-sm bg-glass border border-border-s p-8 rounded-xl relative z-10 shadow-2xl">
+            <h2 class="text-xl font-light mb-6 text-gold text-center">Create Account</h2>
+            
+            <div id="register-error" class="hidden mb-4 p-3 bg-critical/10 border border-critical text-critical text-xs rounded text-center"></div>
+            
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <input type="text" id="reg-user" required placeholder="Username" 
+                        class="w-full bg-black/40 border border-border-s rounded px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-gold/50 transition-colors placeholder:text-muted">
+                </div>
+                <div>
+                    <input type="email" id="reg-email" placeholder="Email (Optional)" 
+                        class="w-full bg-black/40 border border-border-s rounded px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-gold/50 transition-colors placeholder:text-muted">
+                </div>
+                <div>
+                    <input type="password" id="reg-pass" required placeholder="Password" 
+                        class="w-full bg-black/40 border border-border-s rounded px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-gold/50 transition-colors placeholder:text-muted">
+                </div>
+                
+                <button type="submit" id="submit-btn" class="w-full mt-2 bg-gold text-black font-semibold text-sm px-4 py-2.5 rounded hover:bg-amber-600 transition-colors shadow-lg shadow-gold/20">
+                    Sign Up
+                </button>
+                <div class="mt-4 text-center border-t border-border-s pt-4 flex flex-col gap-2">
+                    <a href="/login/" class="text-xs text-gold hover:text-white transition-colors">Already have an account? Sign in</a>
+                    <a href="/" class="text-xs text-muted hover:text-gray-300 transition-colors">Return to Dashboard</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        async function api(endpoint, method = 'GET', body = null) {
+            const options = { method, headers: { 'Accept': 'application/json' } };
+            if (body) {
+                options.headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(body);
+            }
+            const res = await fetch(endpoint, options);
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
+                return data;
+            } else {
+                const text = await res.text();
+                throw new Error(`Expected JSON but received: ${text.substring(0, 50)}...`);
+            }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('reg-user').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-pass').value;
+            const errorDiv = document.getElementById('register-error');
+            const submitBtn = document.getElementById('submit-btn');
+
+            errorDiv.classList.add('hidden');
+            submitBtn.textContent = 'Creating account...';
+            submitBtn.disabled = true;
+
+            try {
+                const data = await api('/api/auth/register/', 'POST', { username, email, password });
+                submitBtn.textContent = 'Success! Redirecting...';
+                window.location.href = '/'; // Redirect to dashboard
+            } catch(err) {
+                errorDiv.textContent = err.message || 'Registration failed';
+                errorDiv.classList.remove('hidden');
+                submitBtn.textContent = 'Sign Up';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
