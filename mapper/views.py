@@ -48,16 +48,18 @@ def register_page_view(request):
 # ──────────────────────────────────────────────
 
 def _get_project(request):
-    """Get the default project, or create one."""
-    project = Project.objects.first()
+    """Get the user's project, or create one."""
+    user = request.user if request.user.is_authenticated else None
+    
+    if user:
+        project = Project.objects.filter(owner=user).first()
+    else:
+        project = Project.objects.filter(owner__isnull=True).first()
+
     if not project:
-        project = Project.objects.create(name="Default Project")
-        # Seed with initial data
-        Task.objects.create(project=project, task_id="1", name="Database Design", duration=10, delay=5, timestamp="09:00 AM")
-        Task.objects.create(project=project, task_id="2", name="Backend API", duration=15, delay=0, timestamp="09:05 AM")
-        Task.objects.create(project=project, task_id="3", name="Frontend Auth", duration=12, delay=0, timestamp="09:10 AM")
-        Link.objects.create(project=project, source_task_id="1", target_task_id="2")
-        Link.objects.create(project=project, source_task_id="2", target_task_id="3")
+        project_name = f"{user.username}'s Project" if user else "Default Project"
+        project = Project.objects.create(name=project_name, owner=user)
+        # We start with an empty project rather than seeding default dependencies.
     return project
 
 
