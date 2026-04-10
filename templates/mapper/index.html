@@ -181,6 +181,42 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
+
+        /* 2D Stars Background */
+        .stars-bg {
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 40px, #c5a37d, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 140px 180px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 180px 100px, rgba(255,255,255,0.6), rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 240px 220px, #c5a37d, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 280px 60px, rgba(255,255,255,0.9), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 300px 300px;
+        }
+        .stars-bg-2 {
+            background-image: 
+                radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.7), rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 120px 90px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 200px 240px, rgba(197,163,125,0.8), rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 260px 140px, #ffffff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 350px 350px;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+        
+        .animate-twinkle {
+            animation: twinkle 6s infinite ease-in-out;
+        }
+        .animate-twinkle-delayed {
+            animation: twinkle 8s infinite ease-in-out 3s;
+        }
     </style>
 </head>
 
@@ -346,13 +382,17 @@
         </aside>
 
         <!-- GRAPH VIEWPORT -->
-        <section class="relative" style="background: radial-gradient(circle at center, #11151c 0%, #0a0c10 100%);">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-white/[0.03]">
+        <section class="relative overflow-hidden" style="background: radial-gradient(circle at center, #11151c 0%, #0a0c10 100%);">
+            <!-- 2D Stars Layers -->
+            <div class="absolute inset-0 z-0 pointer-events-none stars-bg animate-twinkle"></div>
+            <div class="absolute inset-0 z-0 pointer-events-none stars-bg-2 animate-twinkle-delayed"></div>
+
+            <div class="relative z-10 flex items-center justify-between px-6 py-4 border-b border-white/[0.03]">
                 <div class="px-4 py-1.5 rounded-full text-xs border border-gold text-gold font-medium">Live Dependency
                     Traversal</div>
                 <div class="text-xs text-muted">FR7 Root Cause Algorithm Active</div>
             </div>
-            <div id="graph-canvas" class="w-full" style="height: 600px; cursor: grab;"></div>
+            <div id="graph-canvas" class="w-full relative z-10" style="height: 600px; cursor: grab;"></div>
         </section>
     </main>
 
@@ -1172,7 +1212,7 @@
                     });
                 }
 
-        // Removed Theme Toggle Event Listener
+                // Removed Theme Toggle Event Listener
 
                 // ──────────────────────────────────────
                 // 20. BOOT
