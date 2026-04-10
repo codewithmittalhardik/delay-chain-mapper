@@ -18,9 +18,7 @@ from .models import Project, Task, Link
 from .groq_client import generate_chain, analyze_delay_optimization
 
 
-# ──────────────────────────────────────────────
 # TEMPLATE VIEW
-# ──────────────────────────────────────────────
 
 def dashboard(request):
     """Serve the main SPA-like dashboard template."""
@@ -39,9 +37,7 @@ def register_page_view(request):
     return render(request, 'mapper/register.html')
 
 
-# ──────────────────────────────────────────────
 # HELPER: Get or create default project
-# ──────────────────────────────────────────────
 
 def _get_project(request):
     """Get the user's project, or create one."""
@@ -69,9 +65,7 @@ def _serialize_project(project):
     return {"nodes": nodes, "links": link_list, "project_name": project.name}
 
 
-# ──────────────────────────────────────────────
 # API: PROJECT DATA
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -80,9 +74,7 @@ def get_project(request):
     return JsonResponse(_serialize_project(project))
 
 
-# ──────────────────────────────────────────────
 # API: TASK CRUD
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -124,9 +116,7 @@ def delete_task(request, task_id):
     return JsonResponse({"status": "deleted", "task_id": task_id})
 
 
-# ──────────────────────────────────────────────
 # API: DELAY PROPAGATION
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -157,9 +147,7 @@ def propagate_delay(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ──────────────────────────────────────────────
 # API: AI — CHAIN GENERATION (Groq)
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -203,9 +191,7 @@ def generate_chain_view(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ──────────────────────────────────────────────
 # API: AI — DELAY OPTIMIZATION ANALYSIS (Groq)
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -223,9 +209,7 @@ def analyze_delay_view(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ──────────────────────────────────────────────
 # API: PDF EXPORT
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -274,9 +258,7 @@ def export_pdf(request):
     return response
 
 
-# ──────────────────────────────────────────────
 # API: SAVE FULL PROJECT (bulk update)
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -317,9 +299,7 @@ def save_project(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ──────────────────────────────────────────────
 # API: AUTH
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -392,9 +372,7 @@ def register_api_view(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-# ──────────────────────────────────────────────
 # API: ADMIN USER ANALYTICS
-# ──────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["GET"])
