@@ -1,7 +1,3 @@
-"""
-Django settings for delaychain project.
-"""
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv

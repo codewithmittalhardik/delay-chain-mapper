@@ -1,7 +1,3 @@
-"""
-views.py — API Views & Template Rendering for Delay Chain Mapper
-"""
-
 import json
 from datetime import datetime
 
@@ -59,12 +55,10 @@ def _get_project(request):
     if not project:
         project_name = f"{user.username}'s Project" if user else "Default Project"
         project = Project.objects.create(name=project_name, owner=user)
-        # We start with an empty project rather than seeding default dependencies.
     return project
 
 
 def _serialize_project(project):
-    """Serialize project to the frontend JSON format."""
     tasks = list(project.tasks.all().values('task_id', 'name', 'duration', 'delay', 'timestamp'))
     links = list(project.links.all().values('source_task_id', 'target_task_id'))
 
