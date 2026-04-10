@@ -240,8 +240,7 @@ def export_pdf(request):
     elements = []
 
     # Title
-    title_style = ParagraphStyle('Title', fontSize=22, spaceAfter=20,
-                                  textColor=HexColor('#c5a37d'), fontName='Helvetica-Bold')
+    title_style = ParagraphStyle('Title', fontSize=22, spaceAfter=20,textColor=HexColor('#c5a37d'), fontName='Helvetica-Bold')
     elements.append(Paragraph("Delay Chain Analysis Report", title_style))
     elements.append(Spacer(1, 10))
 
